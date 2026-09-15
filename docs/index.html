@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto-Docs Setup · adesso</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --card: #171b22;
+    --card-2: #1e242c;
+    --border: #2a323d;
+    --text: #e6ebf2;
+    --muted: #8b96a6;
+    --accent: #4f7cff;
+    --accent-hover: #6b8fff;
+    --success: #22c98a;
+    --warning: #f5b840;
+    --code-bg: #0a0d11;
+    --shadow: 0 8px 32px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.55 -apple-system, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 48px 24px 80px; }
+  header { margin-bottom: 40px; }
+  .brand {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 13px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 20px;
+  }
+  .brand::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+  h1 { font-size: 38px; letter-spacing: -.02em; margin: 0 0 12px; font-weight: 700; }
+  .lead { font-size: 17px; color: var(--muted); max-width: 620px; margin: 0; }
+  .steps {
+    display: grid; gap: 24px; margin-top: 40px;
+  }
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+  }
+  .step-head {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 18px;
+  }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .step h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+  .step p { color: var(--muted); margin: 0 0 16px; }
+  .step p:last-child { margin-bottom: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); text-decoration: underline; }
+  label {
+    display: block; margin-bottom: 6px; font-size: 13px;
+    color: var(--muted); font-weight: 500;
+  }
+  input[type=text] {
+    width: 100%; padding: 11px 14px;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font: inherit;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 14px;
+    transition: border-color .15s;
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  .field { margin-bottom: 16px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) { .field-row { grid-template-columns: 1fr; } }
+  details {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+  }
+  details summary {
+    cursor: pointer; color: var(--muted); font-size: 13px;
+    user-select: none;
+  }
+  details summary:hover { color: var(--text); }
+  details[open] { padding-bottom: 16px; }
+  details > *:not(summary) { margin-top: 14px; }
+  .code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #d4dbe4;
+    overflow-x: auto;
+    white-space: pre;
+    position: relative;
+  }
+  .code-wrap { position: relative; margin-top: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .btn:hover { background: var(--border); border-color: var(--muted); }
+  .btn-primary {
+    background: var(--accent); border-color: var(--accent); color: white;
+  }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-copy {
+    position: absolute; top: 12px; right: 12px;
+    padding: 6px 12px; font-size: 12px;
+  }
+  .btn-copy.copied { background: var(--success); border-color: var(--success); color: white; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .hint {
+    background: rgba(79,124,255,.08);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: #b8c4d6;
+    margin-top: 12px;
+  }
+  .hint strong { color: var(--text); }
+  .warning {
+    background: rgba(245,184,64,.08);
+    border-left: 3px solid var(--warning);
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: #dcc99a;
+    margin-top: 12px;
+  }
+  .path {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+  }
+  footer {
+    margin-top: 60px; padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 13px;
+    text-align: center;
+  }
+  footer a { color: var(--muted); }
+  .kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Auto-Docs · adesso</div>
+    <h1>Automatische Doku für dein Projekt</h1>
+    <p class="lead">
+      In vier Schritten aktivierst du für dein Repository, dass die
+      Projektdokumentation bei jedem Pull&nbsp;Request automatisch mit
+      Claude aktualisiert wird. Kein Backend, kein Hosting, keine
+      Wartung – ein zentraler Workflow in <a href="https://github.com/Ibraakin/auto-docs">Ibraakin/auto-docs</a>
+      erledigt alles.
+    </p>
+  </header>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">1</div>
+        <h2>Repository-Daten eingeben</h2>
+      </div>
+      <p>Damit wir die YAML-Datei für dich generieren.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="target-branch">Basis-Branch (Default: main)</label>
+          <input type="text" id="target-branch" value="main" placeholder="main">
+        </div>
+        <div class="field">
+          <label for="docs-path">Pfad der Doku-Datei</label>
+          <input type="text" id="docs-path" value="docs/DOCUMENTATION.md" placeholder="docs/DOCUMENTATION.md">
+        </div>
+      </div>
+      <details>
+        <summary>Fortgeschritten: Modell &amp; Diff-Größe anpassen</summary>
+        <div class="field-row">
+          <div class="field">
+            <label for="model">Modell im adesso AI Hub</label>
+            <input type="text" id="model" value="claude-sonnet-4-6">
+          </div>
+          <div class="field">
+            <label for="max-diff">Max. Diff-Größe (Zeichen)</label>
+            <input type="text" id="max-diff" value="60000">
+          </div>
+        </div>
+        <p style="color:var(--muted); font-size:13px; margin:0;">
+          Nur ändern, wenn du weißt was du tust. Standardwerte reichen
+          fast immer.
+        </p>
+      </details>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">2</div>
+        <h2>API Key besorgen &amp; als Secret anlegen</h2>
+      </div>
+      <p>
+        Jeder Entwickler kann sich seinen eigenen Key im
+        <a href="https://adesso-ai-hub.3asabc.de" target="_blank" rel="noopener">adesso AI&nbsp;Hub</a>
+        generieren (Menü <em>My Keys</em>). Kostenlos im Free-Budget.
+      </p>
+      <p>
+        Trage ihn dann im Ziel-Repo als Secret ein:
+        <br><span class="path">Settings → Secrets and variables → Actions → New repository secret</span>
+      </p>
+      <div class="hint">
+        <strong>Name:</strong> <code>ADESSO_AI_HUB_KEY</code><br>
+        <strong>Value:</strong> Dein Key aus dem adesso AI Hub (fängt mit <code>sk-</code> an)
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">3</div>
+        <h2>Workflow-Datei ins Repo legen</h2>
+      </div>
+      <p>
+        Erstelle diese Datei in deinem Repository unter
+        <span class="path" id="workflow-path">.github/workflows/update-docs.yml</span>.
+        Der Inhalt wird live an deine Einstellungen oben angepasst.
+      </p>
+      <div class="code-wrap">
+        <button class="btn btn-copy" id="copy-yaml">Kopieren</button>
+        <pre class="code" id="yaml-output"></pre>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="download-yaml">Als Datei herunterladen</button>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <div class="step-num">4</div>
+        <h2>Fertig – beim nächsten PR läuft er</h2>
+      </div>
+      <p>
+        Sobald du einen Pull&nbsp;Request gegen deinen Basis-Branch
+        öffnest, checkt der Workflow den Code aus, schickt Diff und
+        vorhandene Doku an Claude und committed das Ergebnis zurück in
+        den PR-Branch.
+      </p>
+      <div class="hint">
+        <strong>Author des Doku-Commits:</strong> <code>docs-bot</code>
+        <br>
+        Wenn die Doku unverändert bleibt, wird auch nichts committed.
+      </div>
+      <div class="warning">
+        <strong>Erster PR nach Aktivierung:</strong> Falls die Doku-Datei
+        noch nicht existiert, wird sie automatisch neu erstellt – im
+        gewählten Pfad und mit einer sinnvollen Struktur aus dem Diff.
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Fragen oder Bugs?
+    <a href="https://github.com/Ibraakin/auto-docs/issues">Issue im auto-docs Repo</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/Ibraakin/auto-docs">Quellcode</a>
+  </footer>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const inputs = {
+    branch: $("target-branch"),
+    docs: $("docs-path"),
+    model: $("model"),
+    maxDiff: $("max-diff"),
+  };
+  const output = $("yaml-output");
+  const copyBtn = $("copy-yaml");
+  const downloadBtn = $("download-yaml");
+
+  function generate() {
+    const branch = inputs.branch.value.trim() || "main";
+    const docs = inputs.docs.value.trim() || "docs/DOCUMENTATION.md";
+    const model = inputs.model.value.trim() || "claude-sonnet-4-6";
+    const maxDiff = inputs.maxDiff.value.trim() || "60000";
+
+    const isDefaultDocs = docs === "docs/DOCUMENTATION.md";
+    const isDefaultModel = model === "claude-sonnet-4-6";
+    const isDefaultMaxDiff = maxDiff === "60000";
+    const anyCustom = !isDefaultDocs || !isDefaultModel || !isDefaultMaxDiff;
+
+    let withBlock = "";
+    if (anyCustom) {
+      withBlock = "\n    with:\n";
+      if (!isDefaultDocs)    withBlock += `      docs_path: "${docs}"\n`;
+      if (!isDefaultModel)   withBlock += `      model: "${model}"\n`;
+      if (!isDefaultMaxDiff) withBlock += `      max_diff_chars: ${maxDiff}\n`;
+    }
+
+    output.textContent =
+`name: Update Documentation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [${branch}]
+
+jobs:
+  docs:
+    uses: Ibraakin/auto-docs/.github/workflows/update-docs.yml@main${withBlock}
+    secrets:
+      ADESSO_AI_HUB_KEY: \${{ secrets.ADESSO_AI_HUB_KEY }}
+`;
+  }
+
+  Object.values(inputs).forEach((el) => el.addEventListener("input", generate));
+  generate();
+
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      copyBtn.textContent = "Kopiert ✓";
+      copyBtn.classList.add("copied");
+      setTimeout(() => {
+        copyBtn.textContent = "Kopieren";
+        copyBtn.classList.remove("copied");
+      }, 1800);
+    } catch (e) {
+      copyBtn.textContent = "Fehler – manuell kopieren";
+    }
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    const blob = new Blob([output.textContent], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "update-docs.yml";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+</script>
+</body>
+</html>
