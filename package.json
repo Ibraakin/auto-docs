@@ -1,0 +1,18 @@
+{
+  "name": "auto-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zentrale Auto-Dokumentations-Pipeline für adesso-Projekte",
+  "scripts": {
+    "test": "node --test test/update-docs.test.js",
+    "test:smoke": "node --test test/smoke.test.js",
+    "test:all": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ibraakin/auto-docs.git"
+  }
+}
