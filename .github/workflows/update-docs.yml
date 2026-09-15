@@ -1,0 +1,100 @@
+name: Reusable – Update Documentation
+
+# Dieser Workflow ist "reusable" (workflow_call), d.h. andere Repos
+# können ihn mit einer winzigen 5-Zeilen-YAML aufrufen. Änderungen an
+# der Logik werden dann sofort in ALLEN Projekten wirksam – die Repos
+# selbst müssen nichts nachziehen.
+#
+# Verwendung im Ziel-Repo (siehe README.md):
+#
+#   jobs:
+#     docs:
+#       uses: Ibraakin/auto-docs/.github/workflows/update-docs.yml@main
+#       secrets:
+#         ADESSO_AI_HUB_KEY: ${{ secrets.ADESSO_AI_HUB_KEY }}
+
+on:
+  workflow_call:
+    inputs:
+      docs_path:
+        description: "Pfad zur Doku-Datei, die aktualisiert werden soll"
+        required: false
+        type: string
+        default: "docs/DOCUMENTATION.md"
+      model:
+        description: "Modellname im adesso AI Hub"
+        required: false
+        type: string
+        default: "claude-sonnet-4-6"
+      max_diff_chars:
+        description: "Maximale Länge des PR-Diffs, der ans Modell geschickt wird"
+        required: false
+        type: number
+        default: 60000
+    secrets:
+      ADESSO_AI_HUB_KEY:
+        description: "API Key für den adesso AI Hub"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+
+      - name: Get diff against base branch
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > pr.diff
+          echo "Diff-Länge: $(wc -l < pr.diff) Zeilen"
+
+      - name: Read existing documentation
+        env:
+          DOCS_PATH: ${{ inputs.docs_path }}
+        run: |
+          if [ -f "$DOCS_PATH" ]; then
+            cp "$DOCS_PATH" existing_docs.md
+            echo "Bestehende Doku gefunden: $DOCS_PATH"
+          else
+            echo "" > existing_docs.md
+            echo "Keine bestehende Doku – wird neu erstellt bei: $DOCS_PATH"
+          fi
+
+      - name: Download update-docs script
+        # Lädt das Script direkt aus diesem Repo, damit alle Ziel-Repos
+        # automatisch die neueste Version verwenden.
+        run: |
+          curl -fsSL \
+            https://raw.githubusercontent.com/Ibraakin/auto-docs/main/scripts/update-docs.js \
+            -o update-docs.js
+
+      - name: Call adesso AI Hub to update docs
+        env:
+          ADESSO_AI_HUB_KEY: ${{ secrets.ADESSO_AI_HUB_KEY }}
+          DOCS_PATH: ${{ inputs.docs_path }}
+          MODEL: ${{ inputs.model }}
+          MAX_DIFF_CHARS: ${{ inputs.max_diff_chars }}
+        run: node update-docs.js
+
+      - name: Commit and push updated docs
+        env:
+          DOCS_PATH: ${{ inputs.docs_path }}
+        run: |
+          git config user.name "docs-bot"
+          git config user.email "docs-bot@users.noreply.github.com"
+          git add "$DOCS_PATH"
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen an der Dokumentation."
+          else
+            git commit -m "docs: automatische Aktualisierung (PR #${{ github.event.pull_request.number }})"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
